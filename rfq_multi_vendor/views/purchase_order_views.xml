@@ -8,21 +8,51 @@
         <field name="inherit_id" ref="purchase.purchase_order_form"/>
         <field name="arch" type="xml">
 
-            <!-- Add the Multi-Vendor checkbox near the top of the form -->
-            <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="is_multi_vendor"/>
+            <!-- Add Multi-Vendor toggle before the Vendor field -->
+            <xpath expr="//field[@name='partner_id'][@widget='res_partner_many2one']" position="before">
+                <field name="is_multi_vendor" widget="boolean_toggle"/>
             </xpath>
 
-            <!-- Add a Multi-Vendor Bids notebook page -->
+            <!-- Hide the single Vendor field when multi-vendor is enabled -->
+            <xpath expr="//field[@name='partner_id'][@widget='res_partner_many2one']" position="attributes">
+                <attribute name="invisible">is_multi_vendor</attribute>
+                <attribute name="required">not is_multi_vendor</attribute>
+            </xpath>
+
+            <!-- Add the multi-select Vendors field and Purchase Request link after Vendor -->
+            <xpath expr="//field[@name='partner_id'][@widget='res_partner_many2one']" position="after">
+                <field name="vendor_ids" widget="many2many_tags"
+                       context="{'res_partner_search_mode': 'supplier'}"
+                       invisible="not is_multi_vendor"
+                       placeholder="Select vendors to send RFQ to..."/>
+                <field name="purchase_request_id" readonly="1" invisible="not purchase_request_id"/>
+            </xpath>
+
+            <!-- Add a Multi-Vendor Bids tab in the notebook -->
             <xpath expr="//notebook" position="inside">
                 <page string="Multi-Vendor Bids" name="multi_vendor_bids"
                       invisible="not is_multi_vendor">
-                    <group string="Bidding">
-                        <p class="text-muted">
-                            Bid management will be available in the next phase.
-                            Enable "Multi-Vendor RFQ" above to use this feature.
-                        </p>
-                    </group>
+                    <div class="mb-3">
+                        <button name="action_create_bids" string="Create Bids for Selected Vendors"
+                                type="object" class="btn btn-primary"
+                                invisible="state not in ('draft', 'sent')"/>
+                    </div>
+                    <field name="bid_ids">
+                        <list string="Bids" editable="bottom" create="false">
+                            <field name="name"/>
+                            <field name="partner_id"/>
+                            <field name="date_bid"/>
+                            <field name="amount_total"/>
+                            <field name="state" widget="badge"
+                                   decoration-success="state == 'won'"
+                                   decoration-info="state == 'submitted'"
+                                   decoration-danger="state == 'lost'"/>
+                            <button name="action_select_winning_bid"
+                                    string="Select as Winner" type="object"
+                                    class="btn-primary"
+                                    invisible="state != 'submitted'"/>
+                        </list>
+                    </field>
                 </page>
             </xpath>
 
