@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="seq_purchase_request" model="ir.sequence">
+            <field name="name">Purchase Request</field>
+            <field name="code">purchase.request</field>
+            <field name="prefix">PR/%(range_year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_purchase_bid" model="ir.sequence">
+            <field name="name">Purchase Bid</field>
+            <field name="code">purchase.bid</field>
+            <field name="prefix">BID/%(range_year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>
